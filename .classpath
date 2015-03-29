@@ -5,5 +5,17 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/httpclient-win-4.4.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/fluent-hc-4.4.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/httpcore-4.4.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/jna-4.1.0.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/commons-codec-1.9.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/jna-platform-4.1.0.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/httpclient-4.4.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/httpmime-4.4.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/httpclient-cache-4.4.jar"/>
+	<classpathentry kind="lib" path="/home/yuan/ADTBundleProjects/TopsEcoReader/libs/jsoup-1.7.3.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
