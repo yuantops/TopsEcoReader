@@ -7,5 +7,14 @@
     
     <color name="eco_red">#ff0000</color>
     <color name="eco_white">#ffffff</color>
+    
+    <string-array name="drawer_items_array">
+        <item>Issue</item>
+        <item>Stars</item>
+        <item>Settings</item>
+    </string-array>
+    
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 
 </resources>

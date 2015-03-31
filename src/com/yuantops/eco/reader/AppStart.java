@@ -1,5 +1,7 @@
 package com.yuantops.eco.reader;
 
+import com.yuantops.eco.reader.ui.HomeActivity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,7 +39,7 @@ public class AppStart extends Activity {
 	}
 	
 	private void redirectTo() {
-		Intent intent = new Intent(this, MainActivity.class);
+		Intent intent = new Intent(this, HomeActivity.class);
 		startActivity(intent);
 		this.finish();
 	}
