@@ -4,13 +4,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="library_fragment"/>
-   
-    <ListView android:id="@+id/library_list"
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/libary_test"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
+    <ListView
+        android:id="@+id/library_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>

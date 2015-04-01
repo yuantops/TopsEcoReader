@@ -1,5 +1,6 @@
 package com.yuantops.eco.reader;
 
+import java.io.File;
 import java.util.Properties;
 
 import com.yuantops.eco.reader.utils.StringUtils;
@@ -8,6 +9,8 @@ import android.app.Application;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Environment;
+import android.util.Log;
 
 /** 
  * App Context: for 1) saving and getting app-wide variables and 
@@ -18,6 +21,7 @@ import android.net.NetworkInfo;
  * @Created  Mar 29, 2015 
  */
 public class AppContext extends Application{
+	private static final String TAG = "AppContext";
 	public static final int NETTYPE_WIFI  = 0x01;
 	public static final int NETTYPE_CMWAP = 0x02;
 	public static final int NETTYPE_CMNET = 0x03;
@@ -28,6 +32,7 @@ public class AppContext extends Application{
 	
 	@Override
 	public void onCreate() {
+		Log.v(TAG, "onCreate....");
 		super.onCreate();
 		Thread.setDefaultUncaughtExceptionHandler(AppException.getAppExceptionHandler());
 		
@@ -35,14 +40,37 @@ public class AppContext extends Application{
 	}
 	
 	/**
-	 * Initialization: retrieve cache folder root path (If not exists then set it)
-	 * 初始化：从APP设置文件中取出缓存根目录的路径(如果不存在则写入)
+	 * Initialization: retrieve cache folder root path (If not exists then set it); guarantee cache folders exists
+	 * 初始化：从APP设置文件中取出缓存根目录的路径(如果不存在则写入); 确保缓存目录存在
 	 */
 	private void init() {
+		Log.v(TAG, "init()");
 		dataRootPath = getProperty(AppConfig.CACHE_PATH_KEY);
 		if (StringUtils.isEmpty(dataRootPath)) {
 			setProperty(AppConfig.CACHE_PATH_KEY, AppConfig.DEFAULT_CACHE_PATH);
 			dataRootPath = AppConfig.DEFAULT_CACHE_PATH;
+		}
+		Log.v(TAG + "External Storage ", Environment.getExternalStorageDirectory().getAbsolutePath());
+		
+		Log.v(TAG + " dataRootPath", dataRootPath);
+		Log.v(TAG, "init()1");
+		File indexDir = new File(getIndexDir());
+		if (! indexDir.exists()) {
+			Log.v(TAG, "try to create " + indexDir.getAbsolutePath());
+			indexDir.mkdirs();
+		}			
+		Log.v(TAG, indexDir.exists() ? "Exists" : "not Exists");
+		
+		File starsDir = new File(getStarsDir());
+		if (!starsDir.exists()) {
+			Log.v(TAG, "try to create " + starsDir.getAbsolutePath());
+			starsDir.mkdirs();
+		}
+		Log.v(TAG, "init()3");
+		Log.v(TAG, starsDir.exists() ? "Exists" : "not Exists");
+		
+		if (indexDir.exists() && starsDir.exists()) {
+			Log.v(TAG, starsDir.getAbsolutePath() + " and " + indexDir.getAbsolutePath() + " exists");
 		}
 	}
 	
@@ -82,7 +110,27 @@ public class AppContext extends Application{
 		}
 		return netType;
 	}
+		
+	/**
+	 * @return Cache root path for storing data
+	 */
+	public String getCacheDirRoot() {
+		return dataRootPath;
+	}
 	
+	/**
+	 * @return Directory storing issue index objects
+	 */
+	public String getIndexDir() {
+		return dataRootPath + "index" + File.separator;
+	}
+	
+	/**
+	 * @return Directory storing starred article objects
+	 */
+	public String getStarsDir() {
+		return dataRootPath + "stars" + File.separator;
+	}
 	
 	public boolean containsProperty(String key) {
 		Properties props = getProperties();

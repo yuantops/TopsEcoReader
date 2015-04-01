@@ -16,19 +16,13 @@ import android.os.Environment;
  * Created on: Mar 29, 2015 
  */
 public class AppConfig {
+			
+	public final static String DEFAULT_CACHE_PATH = Environment.getExternalStorageDirectory() + File.separator + "TopsEcoReader" + File.separator;
 	
-	public final static String ECONOMIST_SITE_ROOT_URL = "http://www.economist.com/";
-	public final static String ECONOMIST_CURRENT_ISSUE_URL = "http://www.economist.com/printedition/";
+	public final static String CACHE_PATH_KEY = "cache_path";	
+	public final static String APP_CONFIG = "config";
 	
-	public final static String DEFAULT_CACHE_PATH = Environment.getExternalStorageState() + File.separator + "TopsEcoReader" + File.separator;
-	public final static String INDEX_CATALOG_PATH = DEFAULT_CACHE_PATH + "index" + File.separator;
-	public final static String STARS_CATALOG_PATH = DEFAULT_CACHE_PATH + "stars" + File.separator;
-	
-	public final static String CACHE_PATH_KEY = "cache_path";
-	
-	private final static String APP_CONFIG = "config";
-	
-	public static int ISSUE_CACHE_COUNT = 5;//Default 
+	private static int ISSUE_CACHE_COUNT = 5;//Default 
 	
 	private Context mContext;
 	private static AppConfig instance;
