@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 /** 
  * Keeping constant variables and setting parameters
@@ -16,10 +17,11 @@ import android.os.Environment;
  * Created on: Mar 29, 2015 
  */
 public class AppConfig {
+	private static final String TAG = AppConfig.class.getSimpleName();
 			
 	public final static String DEFAULT_CACHE_PATH = Environment.getExternalStorageDirectory() + File.separator + "TopsEcoReader" + File.separator;
 	
-	public final static String CACHE_PATH_KEY = "cache_path";	
+	public final static String CACHE_PATH = "cache_path";	
 	public final static String APP_CONFIG = "config";
 	
 	private static int ISSUE_CACHE_COUNT = 5;//Default 
@@ -64,8 +66,10 @@ public class AppConfig {
 			//Retrieve/create (if not exists) setting file in app's internal storage
 			//从APP的内部存储目录获取/新建（如果不存在的话）配置文件
 			File confDir = mContext.getDir(APP_CONFIG, Context.MODE_PRIVATE);
+			//Log.v(TAG + "confDir path: " , confDir.getAbsolutePath());
 			File confFile = new File(confDir.getPath() + File.separator + APP_CONFIG);
 			if (!confFile.exists()) confFile.createNewFile(); 
+			//Log.v(TAG + "config file path", confFile.getAbsolutePath());
 			ifs = new FileInputStream(confFile);
 			props.load(ifs);
 		} catch (Exception e){			

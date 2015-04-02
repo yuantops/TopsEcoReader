@@ -45,33 +45,21 @@ public class AppContext extends Application{
 	 */
 	private void init() {
 		Log.v(TAG, "init()");
-		dataRootPath = getProperty(AppConfig.CACHE_PATH_KEY);
+		dataRootPath = getProperty(AppConfig.CACHE_PATH);
 		if (StringUtils.isEmpty(dataRootPath)) {
-			setProperty(AppConfig.CACHE_PATH_KEY, AppConfig.DEFAULT_CACHE_PATH);
+			setProperty(AppConfig.CACHE_PATH, AppConfig.DEFAULT_CACHE_PATH);
 			dataRootPath = AppConfig.DEFAULT_CACHE_PATH;
 		}
-		Log.v(TAG + "External Storage ", Environment.getExternalStorageDirectory().getAbsolutePath());
-		
-		Log.v(TAG + " dataRootPath", dataRootPath);
 		Log.v(TAG, "init()1");
 		File indexDir = new File(getIndexDir());
 		if (! indexDir.exists()) {
-			Log.v(TAG, "try to create " + indexDir.getAbsolutePath());
 			indexDir.mkdirs();
 		}			
-		Log.v(TAG, indexDir.exists() ? "Exists" : "not Exists");
 		
 		File starsDir = new File(getStarsDir());
 		if (!starsDir.exists()) {
-			Log.v(TAG, "try to create " + starsDir.getAbsolutePath());
 			starsDir.mkdirs();
-		}
-		Log.v(TAG, "init()3");
-		Log.v(TAG, starsDir.exists() ? "Exists" : "not Exists");
-		
-		if (indexDir.exists() && starsDir.exists()) {
-			Log.v(TAG, starsDir.getAbsolutePath() + " and " + indexDir.getAbsolutePath() + " exists");
-		}
+		}		
 	}
 	
 	/**
