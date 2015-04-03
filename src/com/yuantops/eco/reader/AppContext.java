@@ -1,8 +1,10 @@
 package com.yuantops.eco.reader;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
+import com.yuantops.eco.reader.bean.Issue;
 import com.yuantops.eco.reader.utils.StringUtils;
 
 import android.app.Application;
@@ -100,6 +102,7 @@ public class AppContext extends Application{
 	}
 		
 	/**
+	 * 得到App缓存的根目录
 	 * @return Cache root path for storing data
 	 */
 	public String getCacheDirRoot() {
@@ -107,6 +110,7 @@ public class AppContext extends Application{
 	}
 	
 	/**
+	 * 得到App缓存issue对象的目录
 	 * @return Directory storing issue index objects
 	 */
 	public String getIndexDir() {
@@ -114,10 +118,42 @@ public class AppContext extends Application{
 	}
 	
 	/**
+	 * 得到App缓存加星文章的目录
 	 * @return Directory storing starred article objects
 	 */
 	public String getStarsDir() {
 		return dataRootPath + "stars" + File.separator;
+	}
+	
+	/**
+	 * 返回缓存的Issue对象的列表
+	 * @return List of serialized issue objects stored locally 
+	 */
+	public List<Issue> getCachedIssues() {
+		//TODO
+		return null;
+	}
+	
+	/**
+	 * 检查Issue对象是否缓存在本地
+	 * Check if issue object has already been cached.
+	 * @param pubdate 形如20150321的出版日期
+	 * @return
+	 */
+	public boolean issueExists(String pubdate) {
+		//TODO
+		return false;
+	}
+	
+	/**
+	 * 根据出版日期加载Issue对象
+	 * Load Issue object according to published date
+	 * @param pubdate 形如20150321的字符串
+	 * @return
+	 */
+	public Issue loadIssue(String pubdate) {
+		//TODO 如果缓存在本地，则逆序列化;否则从网上下载，保存
+		return null;
 	}
 	
 	public boolean containsProperty(String key) {
