@@ -52,7 +52,7 @@ public class LibraryFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		mAppContext = (AppContext) getActivity().getApplicationContext();
 		lcLoader    = new LocalLoader(getActivity());		
-		if (lcLoader.CachedSize() == 0) {
+		if (lcLoader.cacheSize() == 0) {
 			new Thread() {				
 				@Override
 				public void run() {
@@ -69,7 +69,7 @@ public class LibraryFragment extends Fragment {
 				
 			}.start();
 		} else {
-			List<Issue> issueList = lcLoader.LoadIssueCache();
+			List<Issue> issueList = lcLoader.loadCachedIssues();
 			Log.v(TAG + " >retrived issueList size", issueList.size() + "");
 			Iterator<Issue> issueIte = issueList.iterator();
 			while (issueIte.hasNext()) {

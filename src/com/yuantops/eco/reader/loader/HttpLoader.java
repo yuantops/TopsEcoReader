@@ -51,7 +51,7 @@ public class HttpLoader {
 	private Context mContext;
 	private String  mCacheRootPath;
 	private String  mIndexPath;
-	
+		
 	public HttpLoader(Context context) {
 		this.mContext = context;
 		this.mCacheRootPath = ((AppContext) mContext.getApplicationContext()).getCacheDirRoot();

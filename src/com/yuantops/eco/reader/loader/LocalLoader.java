@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mustafaferhan.debuglog.DebugLog;
 import com.yuantops.eco.reader.AppContext;
 import com.yuantops.eco.reader.bean.Issue;
 
@@ -37,7 +38,7 @@ public class LocalLoader {
 	 * 得到本地缓存的issue对象个数
 	 * @return 
 	 */
-	public int CachedSize() {
+	public int cacheSize() {
 		File indexDir = new File(mIndexPath);
 		Log.v(TAG + " > inspecting dir:" , indexDir.getAbsolutePath());
 
@@ -76,10 +77,10 @@ public class LocalLoader {
 	
 	/**
 	 * Load and return cached issue objects
-	 * 加载并返回本地缓存的issue对象
+	 * 加载并返回本地缓存的issue对象列表
 	 * @return Issue List Issue对象列表
 	 */
-	public List<Issue> LoadIssueCache() {
+	public List<Issue> loadCachedIssues() {
 		File indexDir = new File(mIndexPath);
 		File[] files = indexDir.listFiles();
 		List<Issue> issueList = new ArrayList<Issue> (); 
@@ -92,17 +93,17 @@ public class LocalLoader {
 	}
 	
 	/**
-	 * Load and return an issue object published on a given date 
-	 * 加载并返回某个日期对应的Issue对象
+	 * Deserialize an issue object published on a given date 
+	 * 逆序列化并返回某个日期对应的Issue对象
 	 * @param date 
 	 * @return 如果存在，返回Issue; 不存在，返回null
 	 */
-	public Issue LoadIssueCache(String date) {
+	public Issue loadCachedIssue(String date) {
 		File file = new File(mIndexPath, date + ".issue");
 		if (file.exists()) {
 			return Issue.deserialize(file);
 		} else {
-			Log.d(TAG, file.getAbsolutePath() + " deserialization failure");
+			DebugLog.e(file.getAbsolutePath() + " deserialization failure");
 		}
 		return null;
 	}

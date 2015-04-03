@@ -4,7 +4,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import com.mustafaferhan.debuglog.DebugLog;
 import com.yuantops.eco.reader.bean.Issue;
+import com.yuantops.eco.reader.loader.HttpLoader;
+import com.yuantops.eco.reader.loader.LocalLoader;
 import com.yuantops.eco.reader.utils.StringUtils;
 
 import android.app.Application;
@@ -15,9 +18,10 @@ import android.os.Environment;
 import android.util.Log;
 
 /** 
- * App Context: for 1) saving and getting app-wide variables and 
- * 2) providing apis checking network status
- * 全局上下文： 保存、获取全局变量; 检查网络状态
+ * App Context: for 1) saving and getting app-wide variables,
+ * 2) providing apis checking network status and 3) handling 
+ * local cached data
+ * 全局上下文： 保存、获取全局变量; 检查网络状态; 处理缓存数据
  * 
  * @Author   yuan(yuan.tops@gmail.com), based on liux's (http://my.oschina.net/liux) work
  * @Created  Mar 29, 2015 
@@ -130,30 +134,50 @@ public class AppContext extends Application{
 	 * @return List of serialized issue objects stored locally 
 	 */
 	public List<Issue> getCachedIssues() {
-		//TODO
-		return null;
+		LocalLoader lcLoader = new LocalLoader(this);
+		return lcLoader.loadCachedIssues();
 	}
 	
 	/**
-	 * 检查Issue对象是否缓存在本地
-	 * Check if issue object has already been cached.
+	 * 检查出版日期确定的Issue对象是否缓存在本地
+	 * Check if an issue object published on a certain date has already been cached.
 	 * @param pubdate 形如20150321的出版日期
 	 * @return
 	 */
 	public boolean issueExists(String pubdate) {
-		//TODO
-		return false;
+		LocalLoader lcLoader = new LocalLoader(this);
+		Issue issue = lcLoader.loadCachedIssue(pubdate);
+		return (issue == null) ? false : true;
 	}
 	
 	/**
-	 * 根据出版日期加载Issue对象
+	 * 得到缓存在本地的Issue对象的个数
+	 * Get number of cached issue objects
+	 * @return issue Numbers
+	 */
+	public int cachedIssueNumber() {
+		LocalLoader lcLoader = new LocalLoader(this);
+		return lcLoader.cacheSize();
+	}
+	
+	/**
+	 * 根据出版日期加载Issue对象: 如果有缓存，则逆序列化并返回;否则从网上下载，保存
 	 * Load Issue object according to published date
 	 * @param pubdate 形如20150321的字符串
 	 * @return
 	 */
-	public Issue loadIssue(String pubdate) {
-		//TODO 如果缓存在本地，则逆序列化;否则从网上下载，保存
-		return null;
+	public Issue loadIssue(String pubdate) throws AppException {
+		LocalLoader lcLoader = new LocalLoader(this);
+		Issue issue = lcLoader.loadCachedIssue(pubdate);
+		if (issue == null) {
+			if (!isNetworkConnected()) {
+				DebugLog.d("Network not connected");
+				return null;
+			}
+			HttpLoader hpLoader = new HttpLoader(this);
+			issue = hpLoader.FetchIssueManifest();
+		}
+		return issue;
 	}
 	
 	public boolean containsProperty(String key) {
