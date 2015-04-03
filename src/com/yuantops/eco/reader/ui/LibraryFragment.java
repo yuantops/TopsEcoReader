@@ -1,5 +1,8 @@
 package com.yuantops.eco.reader.ui;
 
+import java.util.Iterator;
+import java.util.List;
+
 import com.yuantops.eco.reader.AppContext;
 import com.yuantops.eco.reader.AppException;
 import com.yuantops.eco.reader.R;
@@ -64,6 +67,17 @@ public class LibraryFragment extends Fragment {
 				}
 				
 			}.start();
+		} else {
+			List<Issue> issueList = lcLoader.LoadIssueCache();
+			Log.v(TAG + " >retrived issueList size", issueList.size() + "");
+			Iterator<Issue> issueIte = issueList.iterator();
+			while (issueIte.hasNext()) {
+				Issue issue = issueIte.next();
+				Message msg = new Message();
+				msg.what = 1;
+				msg.obj  = issue;
+				mLibHandler.sendMessage(msg);
+			}
 		}
 		setHasOptionsMenu(true);
 	}

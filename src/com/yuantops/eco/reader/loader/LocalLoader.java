@@ -43,9 +43,9 @@ public class LocalLoader {
 
 		File[] files = null;
 		if (indexDir.exists()) {
-			Log.v(TAG, indexDir.getAbsolutePath() + "exists");
+			Log.v(TAG, indexDir.getAbsolutePath() + " exists");
 		} else {
-			Log.v(TAG, indexDir.getAbsolutePath() + "does not exist");
+			Log.v(TAG, indexDir.getAbsolutePath() + " does not exist");
 		}
 		
 		if (indexDir.isDirectory()){
