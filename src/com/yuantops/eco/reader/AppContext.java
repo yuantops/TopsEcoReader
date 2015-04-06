@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Properties;
 
 import com.mustafaferhan.debuglog.DebugLog;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.yuantops.eco.reader.bean.Issue;
 import com.yuantops.eco.reader.loader.HttpLoader;
 import com.yuantops.eco.reader.loader.LocalLoader;
@@ -50,13 +52,11 @@ public class AppContext extends Application{
 	 * 初始化：从APP设置文件中取出缓存根目录的路径(如果不存在则写入); 确保缓存目录存在
 	 */
 	private void init() {
-		Log.v(TAG, "init()");
 		dataRootPath = getProperty(AppConfig.CACHE_PATH);
 		if (StringUtils.isEmpty(dataRootPath)) {
 			setProperty(AppConfig.CACHE_PATH, AppConfig.DEFAULT_CACHE_PATH);
 			dataRootPath = AppConfig.DEFAULT_CACHE_PATH;
 		}
-		Log.v(TAG, "init()1");
 		File indexDir = new File(getIndexDir());
 		if (! indexDir.exists()) {
 			indexDir.mkdirs();
@@ -65,7 +65,13 @@ public class AppContext extends Application{
 		File starsDir = new File(getStarsDir());
 		if (!starsDir.exists()) {
 			starsDir.mkdirs();
-		}		
+		}	
+		
+		//Create global configuration and Initialize UniversalImageLoader with
+		//this configuration
+		ImageLoaderConfiguration UILconfig = new ImageLoaderConfiguration.Builder(this)
+			.build();
+		ImageLoader.getInstance().init(UILconfig);
 	}
 	
 	/**
@@ -133,7 +139,7 @@ public class AppContext extends Application{
 	 * 返回缓存的Issue对象的列表
 	 * @return List of serialized issue objects stored locally 
 	 */
-	public List<Issue> getCachedIssues() {
+	public List<Issue> loadCachedIssues() {
 		LocalLoader lcLoader = new LocalLoader(this);
 		return lcLoader.loadCachedIssues();
 	}
@@ -144,7 +150,7 @@ public class AppContext extends Application{
 	 * @param pubdate 形如20150321的出版日期
 	 * @return
 	 */
-	public boolean issueExists(String pubdate) {
+	public boolean isIssueCached(String pubdate) {
 		LocalLoader lcLoader = new LocalLoader(this);
 		Issue issue = lcLoader.loadCachedIssue(pubdate);
 		return (issue == null) ? false : true;
@@ -175,7 +181,7 @@ public class AppContext extends Application{
 				return null;
 			}
 			HttpLoader hpLoader = new HttpLoader(this);
-			issue = hpLoader.FetchIssueManifest();
+			issue = hpLoader.FetchIssueManifest(pubdate);
 		}
 		return issue;
 	}

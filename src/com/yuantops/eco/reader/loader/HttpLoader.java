@@ -97,20 +97,7 @@ public class HttpLoader {
 			throw AppException.io(e);
 		}
 		
-		//System.out.println("HttpResp   %n" + htmlRsp);
-
-		Element rawDoc = Jsoup.parse(htmlRsp);
-		
-		/*Document rawDoc = null;   //raw html content grabbed from webpage
-		try {
-			Log.v(TAG, "Downlaoding manifest from: " + url);
-			rawDoc = Jsoup.connect(url).get();
-		} catch(IOException e) {
-			throw AppException.io(e);
-		}*/
-		
-		//System.out.printf("%s manifest raw %n%s", TAG, rawDoc.toString());
-		
+		Element rawDoc = Jsoup.parse(htmlRsp);		
 		String pubdate   = rawDoc.select("meta[name=pubdate]").first().attr("content");
 		Element cover    = rawDoc.getElementsByClass("issue-image").first().select("img").first();
 		String title     = cover.attr("title");
@@ -118,16 +105,10 @@ public class HttpLoader {
 		String fullCover = thumbnail.replace("thumbnail", "full");			
 				
 		Issue issue = new Issue(pubdate, title, thumbnail, fullCover);	
-		
-		Log.v(TAG, "break1");
-		
-		//System.out.printf("%s manifest raw %n%s", TAG, rawDoc.toString());
+				
 		Elements sections = rawDoc.select("div[class^=section]");
-		Log.v(TAG + " sections number", sections.size()+"");
 		int articleNo = 1;
-		for (Element section:sections) {
-			//Log.v(TAG + " >section content%n%n", section.toString());
-			
+		for (Element section:sections) {			
 			String sectionName = section.select("h4").first().text();			
 			Elements articles  = section.select("div.article");
 			Elements flytitles = section.select("h5");
@@ -145,13 +126,27 @@ public class HttpLoader {
 				issue.addArticle(arti);
 			}
 		}		
-		Log.v(TAG + " >article count", issue.getArticleCount() + "");
 		
-		//Serialize issue object
+		//Download and save issue cover;		
+		File issueDataDir = new File(mCacheRootPath, issue.getPubDate());
+		try {
+			if (!issueDataDir.exists() || !issueDataDir.isDirectory()) {
+				issueDataDir.mkdirs();
+			}
+		} catch (Exception e) {
+			throw AppException.io(e);
+		}		
+		//Replace cover URL (http://) with local URI (file://)
+		File coverThumbDest = new File(issueDataDir, "cover_thumbnail");
+		File coverFullDest = new File(issueDataDir, "cover_full");
+		saveImageFromUrl(issue.getCoverThumbUrl(), coverThumbDest);
+		issue.setCoverThumbUrl("file://" + coverThumbDest.getAbsolutePath());
+		saveImageFromUrl(issue.getCoverFullUrl(), coverFullDest);
+		issue.setCoverFullUrl("file://" + coverFullDest.getAbsolutePath());	
+		
+		//Serialize issue object and save on disk
 		File issueFile = new File(mIndexPath, issue.getPubDate() + ".issue");
 		Issue.serialize(issue, issueFile);
-		Log.v(TAG + " >issue save path", issueFile.getAbsolutePath());
-		//Log.v(TAG + " >IssueContent", issue.toString());
 		return issue;
 	}
 	
@@ -168,21 +163,13 @@ public class HttpLoader {
 		File issueDataDir = new File(mCacheRootPath, issue.getPubDate());
 		File issueImgDir  = new File(issueDataDir, "images");
 		try {
-			if (!issueImgDir.exists() || issueImgDir.isDirectory()) {
+			if (!issueImgDir.exists() || !issueImgDir.isDirectory()) {
 				issueImgDir.mkdirs();
 			}
 		} catch (Exception e) {
 			throw AppException.io(e);
 		}
 		
-		// Save cover image, rename images and update link in issue
-		File coverThumbDest = new File(issueDataDir, "cover_thumbnail");
-		File coverFullDest = new File(issueDataDir, "cover_full");
-		saveImageFromUrl(issue.getCoverThumbUrl(), coverThumbDest);
-		issue.setCoverThumbUrl(coverThumbDest.getAbsolutePath());
-		saveImageFromUrl(issue.getCoverFullUrl(), coverFullDest);
-		issue.setCoverFullUrl(coverFullDest.getAbsolutePath());		
-
 		// Crawl and process each article
 		Iterator ite = issue.iterator();
 		while (ite.hasNext()) {
