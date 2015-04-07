@@ -2,6 +2,7 @@ package com.yuantops.eco.reader.adapters;
 
 import java.util.List;
 
+import com.mustafaferhan.debuglog.DebugLog;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.yuantops.eco.reader.R;
@@ -29,14 +30,14 @@ public class LibraryAdapter extends BaseAdapter {
 	ImageLoader mImgLoader;
 		
 	public LibraryAdapter(List<Issue> issueList, Context context) {
-		this.mContext = context;
+		this.mContext   = context;
 		this.mIssueList = issueList;
 		this.mImgLoader = ImageLoader.getInstance();
 	} 
 
 	@Override
-	public int getCount() {
-		return mIssueList.size();
+	public int getCount() {		
+		return (mIssueList == null) ? 0 : mIssueList.size();
 	}
 
 	@Override
@@ -51,6 +52,7 @@ public class LibraryAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		DebugLog.v("getView() at position " + position);
 		ViewHolder vh = null;
 		
 		if (convertView == null) {
@@ -70,6 +72,7 @@ public class LibraryAdapter extends BaseAdapter {
 		if (iss != null) {
 			vh.mIssuePubdate.setText(iss.getPubDate());
 			vh.mIssueTitle.setText(iss.getTitle());
+			DebugLog.v("coverUrl: " + iss.getCoverThumbUrl());
 			mImgLoader.displayImage(iss.getCoverThumbUrl(), vh.mCover);
 		}
 		return convertView;

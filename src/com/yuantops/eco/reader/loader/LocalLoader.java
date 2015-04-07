@@ -40,38 +40,28 @@ public class LocalLoader {
 	 */
 	public int cacheSize() {
 		File indexDir = new File(mIndexPath);
-		Log.v(TAG + " > inspecting dir:" , indexDir.getAbsolutePath());
+
+		DebugLog.v("Inspecting " + indexDir.getAbsolutePath());
 
 		File[] files = null;
-		if (indexDir.exists()) {
-			Log.v(TAG, indexDir.getAbsolutePath() + " exists");
-		} else {
-			Log.v(TAG, indexDir.getAbsolutePath() + " does not exist");
-		}
 		
 		if (indexDir.isDirectory()){
 			files = indexDir.listFiles();
-			Log.v(TAG, indexDir.getAbsolutePath() + " is directory");
+			DebugLog.v(indexDir.getAbsolutePath() + " exists and is directory");
 		} else {
-			Log.v(TAG, indexDir.getAbsolutePath() + " not directory");
-		}
-		
-		if (indexDir.isFile()) {
-			Log.v(TAG, indexDir.getAbsolutePath() + " is file");
-		} else {
-			Log.v(TAG, indexDir.getAbsolutePath() + " not  file");
+			DebugLog.d(indexDir.getAbsolutePath() + " not directory");
 		}
 		
 		int count = 0;
 		if (files == null || files.length == 0) {
-			Log.v(TAG + " >cached size", "0");
-			return count;
-		}
-		for (File f : files) {
-			if (f.isFile() && f.getName().toLowerCase().endsWith("issue")) {
-				count++;
+		} else {
+			for (File f : files) {
+				if (f.isFile() && f.getName().toLowerCase().endsWith("issue")) {
+					count++;
+				}
 			}
 		}
+		DebugLog.d("cached issues: " + count);
 		return count;
 	}
 	
@@ -81,6 +71,7 @@ public class LocalLoader {
 	 * @return Issue List Issue对象列表
 	 */
 	public List<Issue> loadCachedIssues() {
+		DebugLog.v("load issues from " + mIndexPath);
 		File indexDir = new File(mIndexPath);
 		File[] files = indexDir.listFiles();
 		List<Issue> issueList = new ArrayList<Issue> (); 

@@ -152,7 +152,7 @@ public class HomeActivity extends BaseActivity{
 
     private void selectItem(int position) {
         // update the main content by replacing fragments
-        Fragment fragment = new LibraryFragment();
+        Fragment fragment = new LibraryFragment_ptr();
        /* Bundle args = new Bundle();
         args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
         fragment.setArguments(args);*/

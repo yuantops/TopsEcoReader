@@ -30,10 +30,13 @@ import org.jsoup.select.Elements;
 import android.content.Context;
 import android.util.Log;
 
+import com.mustafaferhan.debuglog.DebugLog;
 import com.yuantops.eco.reader.AppContext;
 import com.yuantops.eco.reader.AppException;
 import com.yuantops.eco.reader.bean.Article;
 import com.yuantops.eco.reader.bean.Issue;
+import com.yuantops.eco.reader.utils.DateUtils;
+import com.yuantops.eco.reader.utils.StringUtils;
 
 /** 
  * Load/download data from the Internet
@@ -63,20 +66,29 @@ public class HttpLoader {
 	 * Download Current issue
 	 */
 	public Issue FetchIssueManifest() throws AppException {
-		return FetchIssueManifest(ECONOMIST_CURRENT_ISSUE_URL);
+		return FetchIssueManifest("");
 	}
 	
 	/**
-	 * 根据URL下载Issue
-	 * @param url
+	 * 根据pubdate下载Issue
+	 * @param pubdate
 	 * @return
 	 * @throws AppException
 	 */
-	public Issue FetchIssueManifest(String url) throws AppException {		
+	public Issue FetchIssueManifest(String date) throws AppException {		
 		if (!((AppContext) mContext.getApplicationContext()).isNetworkConnected()) {
 			Log.d(TAG, "Fetch issue failure due to no network connection");
 			return null;
 		}
+		
+		String url = null;
+		if (StringUtils.isEmpty(date)) {
+			url = ECONOMIST_CURRENT_ISSUE_URL;
+		} else {
+			url = ECONOMIST_CURRENT_ISSUE_URL + date;
+		}
+		
+		DebugLog.v("Fetching from url: " + url);
 		
 		HttpClient client = new DefaultHttpClient();
 		CookieStore cookieStore = new BasicCookieStore();
@@ -89,22 +101,28 @@ public class HttpLoader {
 		HttpResponse response1 = null;
 		String htmlRsp = null;
 		try {
+			DebugLog.v("Begin executing get...");
 			response1 = client.execute(httpGet, localContext);
 			HttpEntity entity = response1.getEntity();
 			htmlRsp = EntityUtils.toString(entity, "UTF-8");
+			//DebugLog.v("http Response \n" + htmlRsp);
 			entity.consumeContent();
 		} catch (IOException e) {
+			e.printStackTrace();
+			DebugLog.d("Exception Http");
 			throw AppException.io(e);
 		}
 		
 		Element rawDoc = Jsoup.parse(htmlRsp);		
-		String pubdate   = rawDoc.select("meta[name=pubdate]").first().attr("content");
+		String pubdate   = DateUtils.formatPubdate(rawDoc.select("meta[name=pubdate]").first().attr("content"));
 		Element cover    = rawDoc.getElementsByClass("issue-image").first().select("img").first();
 		String title     = cover.attr("title");
 		String thumbnail = cover.attr("src");
 		String fullCover = thumbnail.replace("thumbnail", "full");			
 				
 		Issue issue = new Issue(pubdate, title, thumbnail, fullCover);	
+		
+		DebugLog.d("raw issue content:\n" + issue.toString());
 				
 		Elements sections = rawDoc.select("div[class^=section]");
 		int articleNo = 1;
@@ -115,6 +133,7 @@ public class HttpLoader {
 			Iterator<Element> itFly = flytitles.iterator();
 			String headline, flytitle, webUrl;
 			for (Element article:articles) {
+				DebugLog.v("Processing article " + articleNo);
 				headline = article.select("a").first().text();
 				webUrl   = ECONOMIST_SITE_ROOT_URL + article.select("a").first().attr("href");
 				if (itFly.hasNext()) {
@@ -136,6 +155,7 @@ public class HttpLoader {
 		} catch (Exception e) {
 			throw AppException.io(e);
 		}		
+		
 		//Replace cover URL (http://) with local URI (file://)
 		File coverThumbDest = new File(issueDataDir, "cover_thumbnail");
 		File coverFullDest = new File(issueDataDir, "cover_full");
@@ -143,7 +163,7 @@ public class HttpLoader {
 		issue.setCoverThumbUrl("file://" + coverThumbDest.getAbsolutePath());
 		saveImageFromUrl(issue.getCoverFullUrl(), coverFullDest);
 		issue.setCoverFullUrl("file://" + coverFullDest.getAbsolutePath());	
-		
+				
 		//Serialize issue object and save on disk
 		File issueFile = new File(mIndexPath, issue.getPubDate() + ".issue");
 		Issue.serialize(issue, issueFile);

@@ -1,6 +1,8 @@
 package com.yuantops.eco.reader;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -10,6 +12,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.yuantops.eco.reader.bean.Issue;
 import com.yuantops.eco.reader.loader.HttpLoader;
 import com.yuantops.eco.reader.loader.LocalLoader;
+import com.yuantops.eco.reader.utils.DateUtils;
 import com.yuantops.eco.reader.utils.StringUtils;
 
 import android.app.Application;
@@ -37,6 +40,7 @@ public class AppContext extends Application{
 	public static final int PAGE_SIZE = 10;//默认分页大小
 	
 	private String dataRootPath;//存放App缓存的根目录
+	private int    cacheSize;   //缓存的issue数量
 	
 	@Override
 	public void onCreate() {
@@ -52,6 +56,7 @@ public class AppContext extends Application{
 	 * 初始化：从APP设置文件中取出缓存根目录的路径(如果不存在则写入); 确保缓存目录存在
 	 */
 	private void init() {
+		//Retrieve/set cache path
 		dataRootPath = getProperty(AppConfig.CACHE_PATH);
 		if (StringUtils.isEmpty(dataRootPath)) {
 			setProperty(AppConfig.CACHE_PATH, AppConfig.DEFAULT_CACHE_PATH);
@@ -60,13 +65,21 @@ public class AppContext extends Application{
 		File indexDir = new File(getIndexDir());
 		if (! indexDir.exists()) {
 			indexDir.mkdirs();
-		}			
-		
+		}		
 		File starsDir = new File(getStarsDir());
 		if (!starsDir.exists()) {
 			starsDir.mkdirs();
 		}	
 		
+		//Retrieve/set cache size
+		String cacheSizeStr = getProperty(AppConfig.CACHE_SIZE);
+		if (StringUtils.isEmpty(cacheSizeStr)) {
+			setProperty(AppConfig.CACHE_SIZE, String.valueOf(AppConfig.DEFAULT_CACHE_SIZE));
+			cacheSize = AppConfig.DEFAULT_CACHE_SIZE;
+		} else {
+			cacheSize = Integer.parseInt(cacheSizeStr);
+		}
+				
 		//Create global configuration and Initialize UniversalImageLoader with
 		//this configuration
 		ImageLoaderConfiguration UILconfig = new ImageLoaderConfiguration.Builder(this)
@@ -184,6 +197,27 @@ public class AppContext extends Application{
 			issue = hpLoader.FetchIssueManifest(pubdate);
 		}
 		return issue;
+	}
+	
+	/**
+	 * 从网上下载并保存默认数量的Issue对象
+	 * Download & save default number of issue objects
+	 * @return Issue list
+	 * @throws AppException
+	 */
+	public List<Issue> loadOnlineIssues() throws AppException {
+		List<String> dates = DateUtils.pastIssuePubdates(cacheSize);
+		return loadOnlineIssues(dates);
+	}
+	
+	public List<Issue> loadOnlineIssues(List<String> pubdates) throws AppException {		
+		List<Issue> issues  = new ArrayList<Issue> ();
+		HttpLoader hpLoader = new HttpLoader(this);
+		for (String date : pubdates) {
+			DebugLog.v("Fetching " + date);
+			issues.add(hpLoader.FetchIssueManifest(date));
+		}
+		return issues;
 	}
 	
 	public boolean containsProperty(String key) {

@@ -20,11 +20,12 @@ public class AppConfig {
 	private static final String TAG = AppConfig.class.getSimpleName();
 			
 	public final static String DEFAULT_CACHE_PATH = Environment.getExternalStorageDirectory() + File.separator + "TopsEcoReader" + File.separator;
+	public final static int    DEFAULT_CACHE_SIZE = 10;
 	
-	public final static String CACHE_PATH = "cache_path";	
-	public final static String APP_CONFIG = "config";
-	
-	private static int ISSUE_CACHE_COUNT = 5;//Default 
+	public final static String CACHE_PATH = "cache_path";
+	public final static String CACHE_SIZE = "cache_size";
+	public final static String APP_CONFIG = "config";	
+
 	
 	private Context mContext;
 	private static AppConfig instance;
