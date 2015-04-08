@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.mustafaferhan.debuglog.DebugLog;
+
 /**
  * Class for an Issue.
  * 
@@ -46,12 +48,18 @@ public class Issue implements Serializable, Iterable<Article> {
 
 		ObjectOutputStream ofs = null;
 		try {
-			if (!file.exists())
+			if (!file.exists()) {
+				if (!file.getParentFile().exists()) {
+					file.getParentFile().mkdirs();
+				}
 				file.createNewFile();
+			}
 			ofs = new ObjectOutputStream(new FileOutputStream(file));
 			ofs.writeObject(issue);
 		} catch (FileNotFoundException e) {
+			DebugLog.e("File not found");
 		} catch (IOException e) {
+			DebugLog.e("IOException");
 		} finally {
 			try {
 				if (ofs != null) {

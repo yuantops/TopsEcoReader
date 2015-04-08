@@ -20,6 +20,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 /** 
@@ -37,7 +39,10 @@ public class AppContext extends Application{
 	public static final int NETTYPE_CMWAP = 0x02;
 	public static final int NETTYPE_CMNET = 0x03;
 	
-	public static final int PAGE_SIZE = 10;//默认分页大小
+	public static final int PAGE_SIZE = 10;//默认分页大小	
+
+	public static final int LOAD_FINISHED    = 1;
+	public static final int LOAD_IN_PROGRESS = 2;
 	
 	private String dataRootPath;//存放App缓存的根目录
 	private int    cacheSize;   //缓存的issue数量
@@ -205,17 +210,23 @@ public class AppContext extends Application{
 	 * @return Issue list
 	 * @throws AppException
 	 */
-	public List<Issue> loadOnlineIssues() throws AppException {
+	public List<Issue> loadOnlineIssues(final Handler handler) throws AppException {
 		List<String> dates = DateUtils.pastIssuePubdates(cacheSize);
-		return loadOnlineIssues(dates);
+		return loadOnlineIssues(dates, handler);
 	}
 	
-	public List<Issue> loadOnlineIssues(List<String> pubdates) throws AppException {		
+	public List<Issue> loadOnlineIssues(List<String> pubdates, final Handler handler) throws AppException {		
 		List<Issue> issues  = new ArrayList<Issue> ();
 		HttpLoader hpLoader = new HttpLoader(this);
+		int issueToDLNumber = pubdates.size();
+		int downloadedNumber = 0;
 		for (String date : pubdates) {
 			DebugLog.v("Fetching " + date);
 			issues.add(hpLoader.FetchIssueManifest(date));
+			Message downloadingMsg = new Message();
+			downloadingMsg.what = LOAD_IN_PROGRESS;
+			downloadingMsg.obj = downloadedNumber++ * 100 / issueToDLNumber ;
+			handler.sendMessage(downloadingMsg);
 		}
 		return issues;
 	}

@@ -3,14 +3,6 @@ package com.yuantops.eco.reader.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.mustafaferhan.debuglog.DebugLog;
-import com.yuantops.eco.reader.AppContext;
-import com.yuantops.eco.reader.AppException;
-import com.yuantops.eco.reader.R;
-import com.yuantops.eco.reader.adapters.LibraryAdapter;
-import com.yuantops.eco.reader.bean.Issue;
-
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,11 +11,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.daimajia.numberprogressbar.NumberProgressBar;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.mustafaferhan.debuglog.DebugLog;
+import com.yuantops.eco.reader.AppConfig;
+import com.yuantops.eco.reader.AppContext;
+import com.yuantops.eco.reader.AppException;
+import com.yuantops.eco.reader.R;
+import com.yuantops.eco.reader.adapters.LibraryAdapter;
+import com.yuantops.eco.reader.bean.Issue;
+
 public class LibraryFragment_ptr extends Fragment {
-	private static final int LOAD_FINISHED = 1;
 	
 	private List<Issue>           mLibraryIssues = new ArrayList<Issue> ();
 	private PullToRefreshListView mPTRListView;
+	private NumberProgressBar     mProgressBar;
 	private LibraryAdapter        mLibraryAdapter;
 	private AppContext            mAppContext;
 	private View                  mRootView;
@@ -33,9 +35,16 @@ public class LibraryFragment_ptr extends Fragment {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-			case LOAD_FINISHED:
+			case AppContext.LOAD_FINISHED:
 				DebugLog.v("Msg received");
+				mProgressBar.setVisibility(View.GONE);
+				mPTRListView.setVisibility(View.VISIBLE);
 				mLibraryAdapter.notifyDataSetChanged();
+				break;
+			case AppContext.LOAD_IN_PROGRESS:
+				int progressInt = (Integer) msg.obj;
+				DebugLog.i("progress: " + progressInt);
+				mProgressBar.setProgress(progressInt);
 				break;
 			default:
 				break;
@@ -50,31 +59,7 @@ public class LibraryFragment_ptr extends Fragment {
 		DebugLog.v("onCreate()...");
 		
 		mAppContext     = (AppContext) getActivity().getApplicationContext();					
-		mLibraryAdapter = new LibraryAdapter(mLibraryIssues, getActivity());		
-		
-		new Thread() {
-			@Override
-			public void run() {
-				if (mAppContext.cachedIssueNumber() > 0) {
-					DebugLog.v("Loading cached issues...");					
-					for (Issue issue : mAppContext.loadCachedIssues()) {
-						mLibraryIssues.add(issue);
-					}	
-				} else {
-					DebugLog.v("Downloading from website...");
-					try {
-						for (Issue issue : mAppContext.loadOnlineIssues()) {
-							mLibraryIssues.add(issue);
-						}
-					} catch (AppException e) {
-						e.printStackTrace();
-					}
-				}
-				Message onlineLdFinish = new Message();
-				onlineLdFinish.what = LOAD_FINISHED;
-				mLibHandler.sendMessage(onlineLdFinish);
-			}
-		}.start();		
+		mLibraryAdapter = new LibraryAdapter(mLibraryIssues, getActivity());				
 		
 		setHasOptionsMenu(true);
 	}
@@ -84,10 +69,34 @@ public class LibraryFragment_ptr extends Fragment {
 		DebugLog.v("onCreateView()...");
 		if (mRootView == null) {
 			DebugLog.v("RootView is null");
-			mRootView = inflater.inflate(R.layout.fragment_library_ptr, container, false);
-			mPTRListView = (PullToRefreshListView) mRootView.findViewById(R.id.lib_pull_refresh_list);
-			mPTRListView.setAdapter(mLibraryAdapter);
+			mRootView    = inflater.inflate(R.layout.fragment_library_ptr, container, false);
 		}
+		mPTRListView = (PullToRefreshListView) mRootView.findViewById(R.id.lib_pull_refresh_list);
+		mPTRListView.setAdapter(mLibraryAdapter);
+		mPTRListView.setVisibility(View.GONE);
+		mProgressBar = (NumberProgressBar) mRootView.findViewById(R.id.lib_progress_bar);
+
+		new Thread() {
+			@Override
+			public void run() {
+				if (mAppContext.cachedIssueNumber() > 0) {
+					DebugLog.v("Loading cached issues...");	
+					mLibraryIssues.addAll(mAppContext.loadCachedIssues());						
+				} else {
+					DebugLog.v("Downloading from website...");
+					try {
+						mLibraryIssues.addAll(mAppContext.loadOnlineIssues(mLibHandler));						
+					} catch (AppException e) {
+						DebugLog.e("Download Exception");
+						e.printStackTrace();
+					}
+				}
+				Message onlineLdFinish = new Message();
+				onlineLdFinish.what = AppContext.LOAD_FINISHED;
+				mLibHandler.sendMessage(onlineLdFinish);
+			}
+		}.start();	
+		
 		return mRootView;
 	}
 }

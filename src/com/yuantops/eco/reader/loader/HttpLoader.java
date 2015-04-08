@@ -50,7 +50,7 @@ public class HttpLoader {
 
 	private final static String ECONOMIST_SITE_ROOT_URL     = "http://www.economist.com/";
 	private final static String ECONOMIST_CURRENT_ISSUE_URL = "http://www.economist.com/printedition/";
-	
+		
 	private Context mContext;
 	private String  mCacheRootPath;
 	private String  mIndexPath;
@@ -60,7 +60,7 @@ public class HttpLoader {
 		this.mCacheRootPath = ((AppContext) mContext.getApplicationContext()).getCacheDirRoot();
 		this.mIndexPath     = ((AppContext) mContext.getApplicationContext()).getIndexDir();
 	}	
-
+	
 	/**
 	 * 下载当前Issue
 	 * Download Current issue
@@ -122,7 +122,7 @@ public class HttpLoader {
 				
 		Issue issue = new Issue(pubdate, title, thumbnail, fullCover);	
 		
-		DebugLog.d("raw issue content:\n" + issue.toString());
+		DebugLog.v("raw issue content:\n" + issue.toString());
 				
 		Elements sections = rawDoc.select("div[class^=section]");
 		int articleNo = 1;
